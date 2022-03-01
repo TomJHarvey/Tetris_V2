@@ -14,16 +14,20 @@
 class MainComponent   : public juce::Component
 {
 public:
-    //==============================================================================
+    
     MainComponent();
-
-    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
 private:
-    //==============================================================================
-    // Your private member variables go here...
+
+    juce::Label m_lines_remaining_label;
+    juce::Label m_lines_remaining_value;
+    juce::Label m_time_label;
+    juce::Label m_time_value;
+    juce::Label m_hold_label;
+    juce::Label m_next_label;
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
