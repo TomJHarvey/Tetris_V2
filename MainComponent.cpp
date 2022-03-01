@@ -47,6 +47,7 @@ const int sidebar_background_square_ypos = (3 * square_size) + sidebar_element_o
 
 
 MainComponent::MainComponent()
+    : m_tetris_grid(grid_width, grid_height, square_size)
 {
     setSize(window_width, window_height);
     
@@ -67,30 +68,14 @@ MainComponent::MainComponent()
     
     m_next_label.setText(next_tetrimino_text, juce::sendNotification);
     addAndMakeVisible(m_next_label);
+    
+    m_tetris_grid.setBounds(side_bar_length, square_size, scaled_grid_width, scaled_grid_height);
+    addAndMakeVisible(m_tetris_grid);
 }
 
 void MainComponent::paint(juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::black);
-    g.setColour(juce::Colours::grey);
-    
-    // horizontal grid lines
-    for (int vertical_line = 0; vertical_line <= grid_width; vertical_line ++)
-    {
-        g.drawLine(side_bar_length + (vertical_line * square_size),
-                   0,
-                   side_bar_length + (vertical_line * square_size),
-                   getHeight());
-    }
-    
-    // vertical grid lines
-    for (int horizontal_line = 0; horizontal_line <= grid_height; horizontal_line ++)
-    {
-        g.drawLine(side_bar_length,
-                   pre_grid_bar + (horizontal_line * square_size),
-                   getWidth() - side_bar_length,
-                   pre_grid_bar + (horizontal_line * square_size));
-    }
+    //g.fillAll (juce::Colours::black);
 
     // pre grid bar
     g.setColour(juce::Colours::slategrey);

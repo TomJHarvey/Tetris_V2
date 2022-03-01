@@ -6,6 +6,8 @@
 // you could `#include <JuceHeader.h>` here instead, to make all your module headers visible.
 #include <juce_gui_extra/juce_gui_extra.h>
 
+#include "TetrisGrid.hpp"
+
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -28,6 +30,7 @@ private:
     juce::Label m_hold_label;
     juce::Label m_next_label;
     
+    TetrisGrid m_tetris_grid;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
