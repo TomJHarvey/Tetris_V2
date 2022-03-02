@@ -99,5 +99,22 @@ Tetrimino::getPiece(const PieceType& piece_type)
     return piece;
 }
 
+Tiles
+Tetrimino::rotatePiece(const Piece& piece)
+{
+    Tiles rotated_tiles = piece.m_tiles;
+    std::size_t n = rotated_tiles.size();
+    
+    for (std::size_t row = 0; row < n/2; row++)
+    {
+        for (std::size_t col = row; col < n - row - 1; col++)
+        {
+            swap(rotated_tiles[row][col], rotated_tiles[col][n - 1 - row]);
+            swap(rotated_tiles[row][col], rotated_tiles[n - 1 - row][n - 1 - col]);
+            swap(rotated_tiles[row][col], rotated_tiles[n - 1 - col][row]);
+        }
+    }
+    return rotated_tiles;
+}
 
 

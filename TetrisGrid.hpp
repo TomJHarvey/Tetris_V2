@@ -29,6 +29,7 @@ public:
     bool hitSideLimit(const Direction& direction,
                       const int& position,
                       const int& direction_multiplier) const;
+    void rotatePiece();
     
     void paint (juce::Graphics&) override;
     void resized() override;

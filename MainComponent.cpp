@@ -48,6 +48,11 @@ bool MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* origi
         m_tetris_grid.movePieceWithKeyPress(static_cast<Direction>(key_code));
     }
     
+    else if (key_code == 63232) // create constant, this will also pass in the direction
+    {
+        m_tetris_grid.rotatePiece();
+    }
+    
     return true;
 }
 

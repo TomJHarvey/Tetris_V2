@@ -11,9 +11,11 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <vector>
 
+using Tiles = std::vector<std::vector<bool>>;
+
 struct Piece
 {
-    std::vector<std::vector<bool>> m_tiles;
+    Tiles m_tiles;
     int m_x_pos;
     int m_y_pos;
     juce::Colour colour;
@@ -36,6 +38,7 @@ class Tetrimino
 public:
     
     static Piece getPiece(const PieceType& piece_type);
+    static Tiles rotatePiece(const Piece& piece); // piece roation pos too?
     // TODO: rotate piece here, then do the kick in tetris grid.
 
 };

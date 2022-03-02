@@ -12,7 +12,7 @@ static int counter = 0;
 
 TetrisGrid::TetrisGrid()
 {
-    spawnPiece(PieceType::i); // the piece type will be passed in from constructor too
+    spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
 }
 
 void
@@ -21,7 +21,8 @@ TetrisGrid::spawnPiece(const PieceType& piece_type) // pass in piece type
     m_current_piece = Tetrimino::getPiece(piece_type);
 }
 
-void TetrisGrid::movePieceWithKeyPress(Direction direction)
+void
+TetrisGrid::movePieceWithKeyPress(Direction direction)
 {
     bool move_piece = true;
     int x_position = m_current_piece.m_x_pos;
@@ -64,9 +65,14 @@ void TetrisGrid::movePieceWithKeyPress(Direction direction)
         }
         repaint();
     }
+    else if (move_piece == false && direction == Direction::down)
+    {
+        // if it can't go any further on the down then it should place the piece where it is
+    }
 }
 
-bool TetrisGrid::hitSideLimit(const Direction& direction,
+bool
+TetrisGrid::hitSideLimit(const Direction& direction,
                               const int& position,
                               const int& direction_multiplier) const
 {
@@ -91,7 +97,19 @@ bool TetrisGrid::hitSideLimit(const Direction& direction,
     return result;
 }
 
-void TetrisGrid::paint(juce::Graphics& g)
+void
+TetrisGrid::rotatePiece()
+{
+    Tiles rotated_tiles = Tetrimino::rotatePiece(m_current_piece);
+    
+    // check for kick etc but then do this assignment.
+    m_current_piece.m_tiles = rotated_tiles;
+    repaint();
+}
+
+
+void
+TetrisGrid::paint(juce::Graphics& g)
 {
     g.fillAll (juce::Colours::black);
     
