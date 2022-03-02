@@ -9,22 +9,20 @@
 #define TetrisGrid_hpp
 
 #include <juce_gui_extra/juce_gui_extra.h>
-
+#include "Tetrimino.hpp"
 
 class TetrisGrid : public juce::Component
 {
 public:
     
-    TetrisGrid(int width, int length, int square_size);
-
+    TetrisGrid();
+    void spawnPiece(const PieceType& piece_type);
     
     void paint (juce::Graphics&) override;
     void resized() override;
     
 private:
-    int m_width;
-    int m_length;
-    int m_square_size;
+    Piece m_current_piece;
     
 };
 
