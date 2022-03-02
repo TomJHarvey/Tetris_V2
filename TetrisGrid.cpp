@@ -12,13 +12,67 @@ static int counter = 0;
 
 TetrisGrid::TetrisGrid()
 {
-    spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
+    spawnPiece(PieceType::i); // the piece type will be passed in from constructor too
 }
 
 void
 TetrisGrid::spawnPiece(const PieceType& piece_type) // pass in piece type
 {
     m_current_piece = Tetrimino::getPiece(piece_type);
+}
+
+void TetrisGrid::movePieceSidewards(Direction direction)
+{
+    bool move_piece = true;
+    int x_position = m_current_piece.m_x_pos;
+    int y_position = m_current_piece.m_y_pos;
+    int direction_multiplier = (direction == Direction::left ? -1 : 1);
+    
+    for (const auto& row : m_current_piece.m_tiles)
+    {
+        for (const auto tile : row)
+        {
+            if (tile == true)
+            {
+                // test if hit pieces in grid first, then side limit
+                
+                if (hitSideLimit(direction, x_position, direction_multiplier))
+                {
+                    move_piece = false;
+                    break;
+                }
+            }
+            x_position += gui::square_size;
+        }
+        x_position = m_current_piece.m_x_pos;
+        y_position += gui::square_size;
+    }
+    
+    if (move_piece != false)
+    {
+        m_current_piece.m_x_pos =
+            m_current_piece.m_x_pos + (direction_multiplier * gui::square_size);
+        repaint();
+    }
+}
+
+bool TetrisGrid::hitSideLimit(const Direction& direction,
+                              const int& x_position,
+                              const int& direction_multiplier) const
+{
+    bool result = false;
+    if (direction == Direction::left)
+    {
+        result = (x_position + (direction_multiplier * (gui::square_size)) < 0);
+    }
+    
+    if (direction == Direction::right)
+    {
+        result = (x_position + (direction_multiplier * (gui::square_size)) >=
+                  gui::scaled_grid_width);
+    }
+    
+    return result;
 }
 
 void TetrisGrid::paint(juce::Graphics& g)

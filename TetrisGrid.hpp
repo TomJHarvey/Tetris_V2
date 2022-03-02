@@ -11,12 +11,23 @@
 #include <juce_gui_extra/juce_gui_extra.h>
 #include "Tetrimino.hpp"
 
+
+enum class Direction
+{
+    left = 63234,
+    right = 63235
+};
+
 class TetrisGrid : public juce::Component
 {
 public:
     
     TetrisGrid();
     void spawnPiece(const PieceType& piece_type);
+    void movePieceSidewards(Direction direction);
+    bool hitSideLimit(const Direction& direction,
+                      const int& x_position,
+                      const int& direction_multiplier) const;
     
     void paint (juce::Graphics&) override;
     void resized() override;

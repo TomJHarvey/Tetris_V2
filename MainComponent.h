@@ -14,12 +14,15 @@
     your controls and content.
 */
 class MainComponent   : public juce::Component
+                      , public juce::KeyListener
 {
 public:
     
     MainComponent();
     void paint (juce::Graphics&) override;
     void resized() override;
+    
+    bool keyPressed (const juce::KeyPress &key, juce::Component* originatingComponent) override; // compiler warning
 
 private:
 

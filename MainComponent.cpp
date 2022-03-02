@@ -30,7 +30,26 @@ MainComponent::MainComponent()
                             gui::scaled_grid_height);
     
     addAndMakeVisible(m_tetris_grid);
+    setWantsKeyboardFocus(true);                // Enable use of the keyboard
+    addKeyListener(this);
 }
+
+
+bool MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* originatingComponent)
+{
+    int key_code = key.getKeyCode();
+    
+    std::cout << key_code << std::endl;
+    
+    if (key_code == static_cast<int>(Direction::left) ||
+        key_code == static_cast<int>(Direction::right))
+    {
+        m_tetris_grid.movePieceSidewards(static_cast<Direction>(key_code));
+    }
+    
+    return true;
+}
+
 
 void MainComponent::paint(juce::Graphics& g)
 {
