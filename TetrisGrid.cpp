@@ -21,12 +21,13 @@ TetrisGrid::spawnPiece(const PieceType& piece_type) // pass in piece type
     m_current_piece = Tetrimino::getPiece(piece_type);
 }
 
-void TetrisGrid::movePieceSidewards(Direction direction)
+void TetrisGrid::movePieceWithKeyPress(Direction direction)
 {
     bool move_piece = true;
     int x_position = m_current_piece.m_x_pos;
     int y_position = m_current_piece.m_y_pos;
     int direction_multiplier = (direction == Direction::left ? -1 : 1);
+    int& position = (direction == Direction::down ? y_position : x_position);
     
     for (const auto& row : m_current_piece.m_tiles)
     {
@@ -36,7 +37,7 @@ void TetrisGrid::movePieceSidewards(Direction direction)
             {
                 // test if hit pieces in grid first, then side limit
                 
-                if (hitSideLimit(direction, x_position, direction_multiplier))
+                if (hitSideLimit(direction, position, direction_multiplier))
                 {
                     move_piece = false;
                     break;
@@ -50,26 +51,41 @@ void TetrisGrid::movePieceSidewards(Direction direction)
     
     if (move_piece != false)
     {
-        m_current_piece.m_x_pos =
-            m_current_piece.m_x_pos + (direction_multiplier * gui::square_size);
+        if (direction == Direction::left ||
+            direction == Direction::right)
+        {
+            m_current_piece.m_x_pos =
+                m_current_piece.m_x_pos + (direction_multiplier * gui::square_size);
+        }
+        else if (direction == Direction::down)
+        {
+            m_current_piece.m_y_pos =
+                m_current_piece.m_y_pos + (direction_multiplier * gui::square_size);
+        }
         repaint();
     }
 }
 
 bool TetrisGrid::hitSideLimit(const Direction& direction,
-                              const int& x_position,
+                              const int& position,
                               const int& direction_multiplier) const
 {
     bool result = false;
     if (direction == Direction::left)
     {
-        result = (x_position + (direction_multiplier * (gui::square_size)) < 0);
+        result = (position + (direction_multiplier * (gui::square_size)) < 0);
     }
     
-    if (direction == Direction::right)
+    else if (direction == Direction::right)
     {
-        result = (x_position + (direction_multiplier * (gui::square_size)) >=
+        result = (position + (direction_multiplier * (gui::square_size)) >=
                   gui::scaled_grid_width);
+    }
+    
+    else if (direction == Direction::down)
+    {
+        result = (position + (direction_multiplier * (gui::square_size)) >=
+                  gui::scaled_grid_height);
     }
     
     return result;

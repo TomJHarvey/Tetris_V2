@@ -42,9 +42,10 @@ bool MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* origi
     std::cout << key_code << std::endl;
     
     if (key_code == static_cast<int>(Direction::left) ||
-        key_code == static_cast<int>(Direction::right))
+        key_code == static_cast<int>(Direction::right) ||
+        key_code == static_cast<int>(Direction::down))
     {
-        m_tetris_grid.movePieceSidewards(static_cast<Direction>(key_code));
+        m_tetris_grid.movePieceWithKeyPress(static_cast<Direction>(key_code));
     }
     
     return true;
