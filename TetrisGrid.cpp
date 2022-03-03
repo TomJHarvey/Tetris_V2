@@ -8,10 +8,19 @@
 #include "TetrisGrid.hpp"
 #include "GuiDimensions.h"
 
+static const size_t number_of_kick_tests = 5;
+
+static const std::vector<std::vector<KickDataPosition>> kick_data = {
+    {{0,0}, {-1,0}, {-1, 1}, {0, -2}, {-1,-2}},     // KickDirection::start_to_right
+    {{0,0}, {1,0}, {1, -1}, {0, 2}, {1, 2}},        // KickDirection::right_to_flipped
+    {{0,0}, {1,0}, {1, 1}, {0, -2}, {1, -2}},       // KickDirection::flipped_to_left
+    {{0,0}, {-1,0}, {-1, -1}, {0, 2}, {-1, 2}}      // KickDirection::flipped_to_left
+};
+
 TetrisGrid::TetrisGrid()
 {
     line_counter.resize(gui::grid_height);
-    spawnPiece(PieceType::i); // the piece type will be passed in from constructor too
+    spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
     // make a listener class so that it can call maincomponent to spwan another piece
 }
 
@@ -36,21 +45,26 @@ TetrisGrid::movePieceWithKeyPress(Direction direction)
         {
             if (tile == true)
             {
-                // test if hit pieces in grid first, then side limit
+                // test if hit pieces in grid first
                 if (hitFallenPiece(direction, x_position, y_position, direction_multiplier))
                 {
                     move_piece = false;
                     break;
                 }
+                // test if piece will hit sides or bottom of grid
                 else if (hitSideLimit(direction, position, direction_multiplier))
                 {
                     move_piece = false;
                     break;
                 }
             }
+            // increment the x position along
             x_position += gui::square_size;
         }
+        // reset the x position
         x_position = m_current_piece.m_x_pos;
+        
+        // increment the y position for the next row
         y_position += gui::square_size;
     }
     
@@ -72,7 +86,7 @@ TetrisGrid::movePieceWithKeyPress(Direction direction)
     else if (move_piece == false && direction == Direction::down)
     {
         setFallenPiece();
-        spawnPiece(PieceType::i);
+        spawnPiece(PieceType::j);
     }
 }
 
@@ -86,13 +100,11 @@ TetrisGrid::hitSideLimit(const Direction& direction,
     {
         result = (position + (direction_multiplier * (gui::square_size)) < 0);
     }
-    
     else if (direction == Direction::right)
     {
         result = (position + (direction_multiplier * (gui::square_size)) >=
                   gui::scaled_grid_width);
     }
-    
     else if (direction == Direction::down)
     {
         result = (position + (direction_multiplier * (gui::square_size)) >=
@@ -102,10 +114,26 @@ TetrisGrid::hitSideLimit(const Direction& direction,
     return result;
 }
 
-bool TetrisGrid::hitFallenPiece(const Direction& direction,
-                                const int& x_position,
-                                const int& y_position,
-                                const int& direction_multiplier) const
+bool
+TetrisGrid::rotatedOutOfGrid(const int& x, const int& y) const
+{
+    bool result = false;
+    if ( x < 0 || x >= gui::scaled_grid_width)
+    {
+        result = true;
+    }
+    if (y >= gui::scaled_grid_height)
+    {
+        result = true;
+    }
+    return result;
+}
+
+bool
+TetrisGrid::hitFallenPiece(const Direction& direction,
+                           const int& x_position,
+                           const int& y_position,
+                           const int& direction_multiplier) const
 {
     bool result = false;
     if (direction == Direction::down)
@@ -136,10 +164,75 @@ TetrisGrid::rotatePiece()
 {
     Tiles rotated_tiles = Tetrimino::rotatePiece(m_current_piece);
     
-    // check for kick etc but then do this assignment.
-    m_current_piece.m_tiles = rotated_tiles;
-    repaint();
+    bool matched_tile = false;
+    int kick_offset_x = 0;
+    int kick_offset_y = 0;
+    std::size_t kick_direction = static_cast<size_t>(m_current_piece.kick_direction);
+    for (std::size_t kick_test = 0; kick_test < number_of_kick_tests; kick_test ++)
+    {
+        int x_position = m_current_piece.m_x_pos;
+        int y_position = m_current_piece.m_y_pos;
+        matched_tile = false;
+        for (const auto& row : rotated_tiles)
+        {
+            for (const auto tile : row)
+            {
+                if (tile == true)
+                {
+                    int kicked_x_position = x_position +
+                        (kick_data[kick_direction][kick_test].x * (gui::square_size));
+                    int kicked_y_position = y_position +
+                        (kick_data[kick_direction][kick_test].y * (gui::square_size));
+                    
+                    if (matchCordinates(kicked_x_position, kicked_y_position))
+                    {
+                        matched_tile = true;
+                        break;
+                    }
+                    else if (rotatedOutOfGrid(kicked_x_position, kicked_y_position))
+                    {
+                        matched_tile = true;
+                        break;
+                    }
+                }
+                
+                // increment the x position along
+                x_position += gui::square_size;
+            }
+            // reset the x position
+            x_position = m_current_piece.m_x_pos;
+            
+            // increment the y position for the next row
+            y_position += gui::square_size;
+            
+        }
+        if (!matched_tile)
+        {
+                kick_offset_x = kick_data[kick_direction][kick_test].x;
+                kick_offset_y = kick_data[kick_direction][kick_test].y;
+                break;
+        }
+    }
+    
+    if (matched_tile == false)
+    {
+        m_current_piece.m_x_pos += (kick_offset_x * gui::square_size);
+        m_current_piece.m_y_pos += (kick_offset_y * gui::square_size);
+        
+        // bit messy maybe...
+        m_current_piece.kick_direction =
+            static_cast<KickDirection>(static_cast<int>(m_current_piece.kick_direction) +  1);
+        
+        if (m_current_piece.kick_direction == KickDirection::full_rotation)
+        {
+            m_current_piece.kick_direction = KickDirection::start_to_right;
+        }
+        
+        m_current_piece.m_tiles = rotated_tiles;
+        repaint();
+    }
 }
+
 
 void
 TetrisGrid::setFallenPiece()

@@ -18,35 +18,40 @@ static const Piece j_piece = {{{false, false, true},
                               {false, false , false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::orange};
+                              juce::Colours::orange,
+                              KickDirection::start_to_right};
 
 static const Piece l_piece = {{{true, false, false},
                               {true, true, true},
                               {false, false , false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::blue};
+                              juce::Colours::blue,
+                              KickDirection::start_to_right};
 
 static const Piece s_piece = {{{false, true, true},
                               {true, true, false},
                               {false, false , false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::green};
+                              juce::Colours::green,
+                              KickDirection::start_to_right};
 
 static const Piece z_piece = {{{true, true, false},
                               {false, true, true},
                               {false, false , false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::red};
+                              juce::Colours::red,
+                              KickDirection::start_to_right};
 
 static const Piece t_piece = {{{false, true, false},
                               {true, true, true},
                               {false, false , false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::pink};
+                              juce::Colours::pink,
+                              KickDirection::start_to_right};
 
 static const Piece i_piece = {{{false, false, false, false},
                               {true, true, true, true},
@@ -54,7 +59,8 @@ static const Piece i_piece = {{{false, false, false, false},
                               {false, false , false, false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::lightblue};
+                              juce::Colours::lightblue,
+                              KickDirection::start_to_right};
 
 static const Piece o_piece = {{{false, true, true, false},
                               {false, true, true, false},
@@ -62,7 +68,8 @@ static const Piece o_piece = {{{false, true, true, false},
                               {false, false , false, false}},
                               tetrimino_start_pos_x,
                               tetrimino_start_pos_y,
-                              juce::Colours::yellow};
+                              juce::Colours::yellow,
+                              KickDirection::start_to_right};
 
 
 Piece

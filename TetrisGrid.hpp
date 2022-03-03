@@ -49,6 +49,7 @@ private:
     
     bool matchCordinates(int x_position, int y_position) const;
     void setFallenPiece();
+    bool rotatedOutOfGrid(const int& x, const int& y) const;
     
 private:
     Piece m_current_piece;
