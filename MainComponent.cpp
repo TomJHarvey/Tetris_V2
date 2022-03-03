@@ -39,7 +39,7 @@ bool MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* origi
 {
     int key_code = key.getKeyCode();
     
-    std::cout << key_code << std::endl;
+    // std::cout << key_code << std::endl;
     
     if (key_code == static_cast<int>(Direction::left) ||
         key_code == static_cast<int>(Direction::right) ||

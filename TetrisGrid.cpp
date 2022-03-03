@@ -8,11 +8,11 @@
 #include "TetrisGrid.hpp"
 #include "GuiDimensions.h"
 
-static int counter = 0;
-
 TetrisGrid::TetrisGrid()
 {
-    spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
+    line_counter.resize(gui::grid_height);
+    spawnPiece(PieceType::i); // the piece type will be passed in from constructor too
+    // make a listener class so that it can call maincomponent to spwan another piece
 }
 
 void
@@ -67,7 +67,8 @@ TetrisGrid::movePieceWithKeyPress(Direction direction)
     }
     else if (move_piece == false && direction == Direction::down)
     {
-        // if it can't go any further on the down then it should place the piece where it is
+        setFallenPiece();
+        spawnPiece(PieceType::i);
     }
 }
 
@@ -107,6 +108,66 @@ TetrisGrid::rotatePiece()
     repaint();
 }
 
+void
+TetrisGrid::setFallenPiece()
+{
+    // this function should be re used,
+    // i'll place a lamda as a function argument to do the two different things if tiles are true.
+    // its used here, paint and movePieceWithKeyPress
+
+    int x_position = m_current_piece.m_x_pos;
+    int y_position = m_current_piece.m_y_pos;
+    
+    for (const auto& row : m_current_piece.m_tiles)
+    {
+        for (const auto tile : row)
+        {
+            if (tile == true)
+            {
+                m_grid_squares.push_back({x_position, y_position, m_current_piece.colour});
+                std::size_t line_number = static_cast<std::size_t>(y_position/gui::square_size);
+                line_counter[line_number] ++;
+                
+                if (line_counter[line_number] == (gui::grid_width))
+                {
+                    // remove all with that y position to clear a line
+                    for (int index = 0; index < gui:: grid_width; index++)
+                    {
+                        int indexed_x_position = index * gui::square_size;
+                        m_grid_squares.erase(std::remove_if(m_grid_squares.begin(),
+                                                            m_grid_squares.end(),
+                           [indexed_x_position,y_position](const GridSquare &g) {
+                            return (g.x_position == indexed_x_position) &&
+                                   (g.y_position == y_position);}),
+                                                            m_grid_squares.end());
+                    }
+                    
+                    // reset the current line counter
+                    line_counter[line_number] = 0;
+                    
+                    // move all blocks above the line down by one line
+                    for (auto itr = m_grid_squares.begin(); itr != m_grid_squares.end(); ++itr)
+                    {
+                        if (itr->y_position < y_position)
+                        {
+                            itr->y_position += gui::square_size;
+                        }
+                    }
+                    
+                    // move the line counter down by one line
+                    std::rotate(line_counter.begin(), line_counter.end()-1, line_counter.end());
+                }
+            }
+            
+            x_position += gui::square_size;
+        }
+        
+        x_position = m_current_piece.m_x_pos;
+        y_position += gui::square_size;
+    }
+    
+    repaint();
+}
 
 void
 TetrisGrid::paint(juce::Graphics& g)
@@ -138,14 +199,13 @@ TetrisGrid::paint(juce::Graphics& g)
                    gui::square_size + (horizontal_line * gui::square_size));
     }
     
-    
-    
     int x_position = m_current_piece.m_x_pos;
     int y_position = m_current_piece.m_y_pos;
     
     // can i be assured that while its painting the variables stay the same?
     
-    // Draw each rectangle of the tetrimino here
+    // Draw each rectangle of the current tetrimino here
+    g.setColour(m_current_piece.colour);
     for (const auto& row : m_current_piece.m_tiles)
     {
         for (const auto tile : row)
@@ -162,8 +222,13 @@ TetrisGrid::paint(juce::Graphics& g)
         y_position += gui::square_size;
     }
     
-    std::cout << counter << std::endl;
-    counter++;
+    // draw all fallen pieces
+    for (const auto& square : m_grid_squares)
+    {
+        g.setColour(square.colour);
+        g.drawRect (square.x_position, square.y_position, gui::square_size, gui::square_size);
+        g.fillRect (square.x_position, square.y_position, gui::square_size, gui::square_size);
+    }
 }
 
 void TetrisGrid::resized()
