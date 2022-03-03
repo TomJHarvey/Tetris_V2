@@ -33,14 +33,22 @@ public:
     TetrisGrid();
     void spawnPiece(const PieceType& piece_type);
     void movePieceWithKeyPress(Direction direction);
+    void rotatePiece();
+    void paint (juce::Graphics&) override;
+    void resized() override;
+    
+private:
     bool hitSideLimit(const Direction& direction,
                       const int& position,
                       const int& direction_multiplier) const;
-    void rotatePiece();
-    void setFallenPiece();
     
-    void paint (juce::Graphics&) override;
-    void resized() override;
+    bool hitFallenPiece(const Direction& direction,
+                        const int& x_position,
+                        const int& y_position,
+                        const int& direction_multiplier) const;
+    
+    bool matchCordinates(int x_position, int y_position) const;
+    void setFallenPiece();
     
 private:
     Piece m_current_piece;

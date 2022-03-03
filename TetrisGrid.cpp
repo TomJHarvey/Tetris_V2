@@ -37,8 +37,12 @@ TetrisGrid::movePieceWithKeyPress(Direction direction)
             if (tile == true)
             {
                 // test if hit pieces in grid first, then side limit
-                
-                if (hitSideLimit(direction, position, direction_multiplier))
+                if (hitFallenPiece(direction, x_position, y_position, direction_multiplier))
+                {
+                    move_piece = false;
+                    break;
+                }
+                else if (hitSideLimit(direction, position, direction_multiplier))
                 {
                     move_piece = false;
                     break;
@@ -74,8 +78,8 @@ TetrisGrid::movePieceWithKeyPress(Direction direction)
 
 bool
 TetrisGrid::hitSideLimit(const Direction& direction,
-                              const int& position,
-                              const int& direction_multiplier) const
+                         const int& position,
+                         const int& direction_multiplier) const
 {
     bool result = false;
     if (direction == Direction::left)
@@ -98,6 +102,35 @@ TetrisGrid::hitSideLimit(const Direction& direction,
     return result;
 }
 
+bool TetrisGrid::hitFallenPiece(const Direction& direction,
+                                const int& x_position,
+                                const int& y_position,
+                                const int& direction_multiplier) const
+{
+    bool result = false;
+    if (direction == Direction::down)
+    {
+        result = matchCordinates(x_position,
+                                 y_position + (direction_multiplier * (gui::square_size)));
+    }
+    else if (direction == Direction::left ||
+             direction == Direction::right)
+    {
+        result = matchCordinates(x_position + (direction_multiplier * (gui::square_size)),
+                                 y_position);
+    }
+    return result;
+}
+
+bool TetrisGrid::matchCordinates(int x_position, int y_position) const
+{
+    return (std::find_if(m_grid_squares.begin(),
+                         m_grid_squares.end(),
+            [x_position, y_position](const GridSquare &g) {
+            return (g.x_position == x_position) &&
+                   (g.y_position == y_position);}) != m_grid_squares.end());
+}
+
 void
 TetrisGrid::rotatePiece()
 {
@@ -111,8 +144,7 @@ TetrisGrid::rotatePiece()
 void
 TetrisGrid::setFallenPiece()
 {
-    // this function should be re used,
-    // i'll place a lamda as a function argument to do the two different things if tiles are true.
+    // going through the vector happens 3 times, could it functions be passed in as arugments?
     // its used here, paint and movePieceWithKeyPress
 
     int x_position = m_current_piece.m_x_pos;
@@ -136,7 +168,7 @@ TetrisGrid::setFallenPiece()
                         int indexed_x_position = index * gui::square_size;
                         m_grid_squares.erase(std::remove_if(m_grid_squares.begin(),
                                                             m_grid_squares.end(),
-                           [indexed_x_position,y_position](const GridSquare &g) {
+                           [indexed_x_position, y_position](const GridSquare &g) {
                             return (g.x_position == indexed_x_position) &&
                                    (g.y_position == y_position);}),
                                                             m_grid_squares.end());
