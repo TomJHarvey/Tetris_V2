@@ -30,34 +30,31 @@ MainComponent::MainComponent()
                             gui::scaled_grid_height);
     
     addAndMakeVisible(m_tetris_grid);
-    setWantsKeyboardFocus(true);                // Enable use of the keyboard
+    setWantsKeyboardFocus(true);    // Enable use of the keyboard
     addKeyListener(this);
 }
 
-
-bool MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* originatingComponent)
+bool
+MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* originatingComponent)
 {
+    juce::ignoreUnused(originatingComponent);
     int key_code = key.getKeyCode();
-    
-    // std::cout << key_code << std::endl;
-    
+
     if (key_code == static_cast<int>(Direction::left) ||
         key_code == static_cast<int>(Direction::right) ||
         key_code == static_cast<int>(Direction::down))
     {
-        m_tetris_grid.movePieceWithKeyPress(static_cast<Direction>(key_code));
+        m_tetris_grid.movePiece(static_cast<Direction>(key_code));
     }
-    
     else if (key_code == 63232) // create constant, this will also pass in the direction
     {
         m_tetris_grid.rotatePiece();
     }
-    
     return true;
 }
 
-
-void MainComponent::paint(juce::Graphics& g)
+void
+MainComponent::paint(juce::Graphics& g)
 {
     // left side bar
     g.setColour (juce::Colours::purple);
@@ -128,7 +125,8 @@ void MainComponent::paint(juce::Graphics& g)
                            gui::square_size);
 }
 
-void MainComponent::resized()
+void
+MainComponent::resized()
 {
     setSize(gui::window_width, gui::window_height);   // disables resizing
 }

@@ -9,6 +9,7 @@
 #include "GuiDimensions.h"
 
 static const size_t number_of_kick_tests = 5;
+static const int drop_speed = 1000;
 
 static const std::vector<std::vector<KickDataPosition>> kick_data = {
     {{0,0}, {-1,0}, {-1, 1}, {0, -2}, {-1,-2}},     // KickDirection::start_to_right
@@ -22,6 +23,8 @@ TetrisGrid::TetrisGrid()
     line_counter.resize(gui::grid_height);
     spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
     // make a listener class so that it can call maincomponent to spwan another piece
+    
+    startTimer(drop_speed);
 }
 
 void
@@ -31,7 +34,7 @@ TetrisGrid::spawnPiece(const PieceType& piece_type) // pass in piece type
 }
 
 void
-TetrisGrid::movePieceWithKeyPress(Direction direction)
+TetrisGrid::movePiece(Direction direction)
 {
     bool move_piece = true;
     int x_position = m_current_piece.m_x_pos;
@@ -81,6 +84,7 @@ TetrisGrid::movePieceWithKeyPress(Direction direction)
             m_current_piece.m_y_pos =
                 m_current_piece.m_y_pos + (direction_multiplier * gui::square_size);
         }
+        const juce::MessageManagerLock mmLock;
         repaint();
     }
     else if (move_piece == false && direction == Direction::down)
@@ -152,6 +156,7 @@ TetrisGrid::hitFallenPiece(const Direction& direction,
 
 bool TetrisGrid::matchCordinates(int x_position, int y_position) const
 {
+    // search the grid for squares at the current position
     return (std::find_if(m_grid_squares.begin(),
                          m_grid_squares.end(),
             [x_position, y_position](const GridSquare &g) {
@@ -184,18 +189,19 @@ TetrisGrid::rotatePiece()
                     int kicked_y_position = y_position +
                         (kick_data[kick_direction][kick_test].y * (gui::square_size));
                     
+                    // see if tile is in grid (re name function maybe)
                     if (matchCordinates(kicked_x_position, kicked_y_position))
                     {
                         matched_tile = true;
                         break;
                     }
+                    // see if the rotation causes it to be out of grid (can i morph this into the hit side function?)
                     else if (rotatedOutOfGrid(kicked_x_position, kicked_y_position))
                     {
                         matched_tile = true;
                         break;
                     }
                 }
-                
                 // increment the x position along
                 x_position += gui::square_size;
             }
@@ -213,7 +219,6 @@ TetrisGrid::rotatePiece()
                 break;
         }
     }
-    
     if (matched_tile == false)
     {
         m_current_piece.m_x_pos += (kick_offset_x * gui::square_size);
@@ -223,6 +228,7 @@ TetrisGrid::rotatePiece()
         m_current_piece.kick_direction =
             static_cast<KickDirection>(static_cast<int>(m_current_piece.kick_direction) +  1);
         
+        // this will need to be re-done when the other rotation is included
         if (m_current_piece.kick_direction == KickDirection::full_rotation)
         {
             m_current_piece.kick_direction = KickDirection::start_to_right;
@@ -233,13 +239,9 @@ TetrisGrid::rotatePiece()
     }
 }
 
-
 void
 TetrisGrid::setFallenPiece()
 {
-    // going through the vector happens 3 times, could it functions be passed in as arugments?
-    // its used here, paint and movePieceWithKeyPress
-
     int x_position = m_current_piece.m_x_pos;
     int y_position = m_current_piece.m_y_pos;
     
@@ -249,16 +251,22 @@ TetrisGrid::setFallenPiece()
         {
             if (tile == true)
             {
+                // add current piece tiles to grid
                 m_grid_squares.push_back({x_position, y_position, m_current_piece.colour});
+                
+                // get line number of current tile
                 std::size_t line_number = static_cast<std::size_t>(y_position/gui::square_size);
                 line_counter[line_number] ++;
                 
                 if (line_counter[line_number] == (gui::grid_width))
                 {
-                    // remove all with that y position to clear a line
+                    // remove all tiles with the maxed out y position to clear a line
                     for (int index = 0; index < gui:: grid_width; index++)
                     {
+                        // x_position is incremeted for each tile, y stays the same
                         int indexed_x_position = index * gui::square_size;
+                        
+                        // erase each square with the specified y position from the grid
                         m_grid_squares.erase(std::remove_if(m_grid_squares.begin(),
                                                             m_grid_squares.end(),
                            [indexed_x_position, y_position](const GridSquare &g) {
@@ -283,14 +291,11 @@ TetrisGrid::setFallenPiece()
                     std::rotate(line_counter.begin(), line_counter.end()-1, line_counter.end());
                 }
             }
-            
             x_position += gui::square_size;
         }
-        
         x_position = m_current_piece.m_x_pos;
         y_position += gui::square_size;
     }
-    
     repaint();
 }
 

@@ -9,6 +9,7 @@
 #define TetrisGrid_hpp
 
 #include <juce_gui_extra/juce_gui_extra.h>
+
 #include "GuiDimensions.h"
 #include "Tetrimino.hpp"
 
@@ -27,17 +28,19 @@ struct GridSquare
 };
 
 class TetrisGrid : public juce::Component
+                 , private juce::Timer
 {
 public:
     
     TetrisGrid();
     void spawnPiece(const PieceType& piece_type);
-    void movePieceWithKeyPress(Direction direction);
+    void movePiece(Direction direction);
     void rotatePiece();
     void paint (juce::Graphics&) override;
     void resized() override;
     
 private:
+    
     bool hitSideLimit(const Direction& direction,
                       const int& position,
                       const int& direction_multiplier) const;
@@ -52,6 +55,12 @@ private:
     bool rotatedOutOfGrid(const int& x, const int& y) const;
     
 private:
+    
+    void timerCallback() final
+    {
+        movePiece(Direction::down);
+    }
+    
     Piece m_current_piece;
     std::vector<GridSquare> m_grid_squares;
     std::vector<int> line_counter;
