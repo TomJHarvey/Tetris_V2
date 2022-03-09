@@ -23,7 +23,6 @@ TetrisGrid::TetrisGrid()
     line_counter.resize(gui::grid_height);
     spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
     // make a listener class so that it can call maincomponent to spwan another piece
-    
     startTimer(drop_speed);
 }
 
@@ -33,9 +32,10 @@ TetrisGrid::spawnPiece(const PieceType& piece_type) // pass in piece type
     m_current_piece = Tetrimino::getPiece(piece_type);
 }
 
-void
+bool
 TetrisGrid::movePiece(Direction direction)
 {
+    bool piece_limit_reached = false;
     bool move_piece = true;
     int x_position = m_current_piece.m_x_pos;
     int y_position = m_current_piece.m_y_pos;
@@ -70,7 +70,6 @@ TetrisGrid::movePiece(Direction direction)
         // increment the y position for the next row
         y_position += gui::square_size;
     }
-    
     if (move_piece != false)
     {
         if (direction == Direction::left ||
@@ -84,14 +83,16 @@ TetrisGrid::movePiece(Direction direction)
             m_current_piece.m_y_pos =
                 m_current_piece.m_y_pos + (direction_multiplier * gui::square_size);
         }
-        const juce::MessageManagerLock mmLock;
         repaint();
     }
-    else if (move_piece == false && direction == Direction::down)
+    else if (move_piece == false && direction == Direction::down) // only from a keypress i think
     {
+        piece_limit_reached = true;
         setFallenPiece();
         spawnPiece(PieceType::j);
     }
+    
+    return piece_limit_reached;
 }
 
 bool

@@ -2,6 +2,9 @@
 #include "GuiDimensions.h"
 #include "Tetrimino.hpp"
 
+static const int key_press_up = 63232;
+static const int key_press_space = 32;
+
 MainComponent::MainComponent()
 {
     setSize(gui::window_width, gui::window_height);
@@ -38,17 +41,27 @@ bool
 MainComponent::keyPressed(const juce::KeyPress &key, juce::Component* originatingComponent)
 {
     juce::ignoreUnused(originatingComponent);
+    
     int key_code = key.getKeyCode();
-
+    DBG(key_code);
+    
     if (key_code == static_cast<int>(Direction::left) ||
         key_code == static_cast<int>(Direction::right) ||
         key_code == static_cast<int>(Direction::down))
     {
-        m_tetris_grid.movePiece(static_cast<Direction>(key_code));
+        (void)m_tetris_grid.movePiece(static_cast<Direction>(key_code));
     }
-    else if (key_code == 63232) // create constant, this will also pass in the direction
+    else if (key_code == key_press_up) // create constant, this will also pass in the direction
     {
         m_tetris_grid.rotatePiece();
+    }
+    else if (key_code == key_press_space)
+    {
+        bool hard_drop_complete = false;
+        while (!hard_drop_complete)
+        {
+            hard_drop_complete = m_tetris_grid.movePiece(Direction::down);
+        }
     }
     return true;
 }

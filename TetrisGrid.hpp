@@ -34,7 +34,7 @@ public:
     
     TetrisGrid();
     void spawnPiece(const PieceType& piece_type);
-    void movePiece(Direction direction);
+    bool movePiece(Direction direction);
     void rotatePiece();
     void paint (juce::Graphics&) override;
     void resized() override;
