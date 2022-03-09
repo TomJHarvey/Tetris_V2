@@ -33,7 +33,7 @@ class TetrisGrid : public juce::Component
 public:
     
     TetrisGrid();
-    void spawnPiece(const PieceType& piece_type);
+    void spawnPiece();
     bool movePiece(Direction direction);
     void rotatePiece();
     void paint (juce::Graphics&) override;

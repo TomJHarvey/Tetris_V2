@@ -21,15 +21,15 @@ static const std::vector<std::vector<KickDataPosition>> kick_data = {
 TetrisGrid::TetrisGrid()
 {
     line_counter.resize(gui::grid_height);
-    spawnPiece(PieceType::j); // the piece type will be passed in from constructor too
-    // make a listener class so that it can call maincomponent to spwan another piece
+    spawnPiece();
     startTimer(drop_speed);
 }
 
 void
-TetrisGrid::spawnPiece(const PieceType& piece_type) // pass in piece type
+TetrisGrid::spawnPiece()
 {
-    m_current_piece = Tetrimino::getPiece(piece_type);
+    int piece_type = rand() % 7; // TODO: random could maybe be improved to minimise repeats
+    m_current_piece = Tetrimino::getPiece(static_cast<PieceType>(piece_type));
 }
 
 bool
@@ -89,7 +89,7 @@ TetrisGrid::movePiece(Direction direction)
     {
         piece_limit_reached = true;
         setFallenPiece();
-        spawnPiece(PieceType::j);
+        spawnPiece();
     }
     
     return piece_limit_reached;
@@ -115,7 +115,6 @@ TetrisGrid::hitSideLimit(const Direction& direction,
         result = (position + (direction_multiplier * (gui::square_size)) >=
                   gui::scaled_grid_height);
     }
-    
     return result;
 }
 
